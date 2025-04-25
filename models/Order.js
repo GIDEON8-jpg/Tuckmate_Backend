@@ -1,37 +1,36 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
-
-const Order = sequelize.define('Order', {
+module.exports = (sequelize, DataTypes) => {
+  const Order = sequelize.define('Order', {
     id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
     },
     status: {
-        type: DataTypes.ENUM('pending', 'processing', 'ready', 'completed', 'cancelled'),
-        defaultValue: 'pending'
+      type: DataTypes.ENUM('pending', 'processing', 'ready', 'completed', 'cancelled'),
+      defaultValue: 'pending'
     },
     total_amount: {
-        type: DataTypes.DECIMAL(10, 2),
-        allowNull: false
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false
     },
     payment_method: {
-        type: DataTypes.ENUM('ecocash', 'cash')
+      type: DataTypes.ENUM('ecocash', 'cash')
     },
     payment_status: {
-        type: DataTypes.ENUM('pending', 'completed', 'failed', 'refunded'),
-        defaultValue: 'pending'
+      type: DataTypes.ENUM('pending', 'completed', 'failed', 'refunded'),
+      defaultValue: 'pending'
     },
     qr_code_data: {
-        type: DataTypes.TEXT
+      type: DataTypes.TEXT
     },
     qr_code_expiry: {
-        type: DataTypes.DATE
+      type: DataTypes.DATE
     }
-}, {
+  }, {
     timestamps: true,
     underscored: true,
     tableName: 'orders'
-});
+  });
 
-module.exports = Order;
+  return Order;
+};
