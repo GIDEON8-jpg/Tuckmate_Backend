@@ -1,0 +1,58 @@
+const { Sequelize } = require('sequelize');
+const path = require('path');
+const fs = require('fs');
+
+// Ensure the database directory exists
+const dbDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+}
+
+// Path to SQLite database file
+const dbPath = path.join(dbDir, 'database.sqlite');
+
+// Create Sequelize instance for SQLite
+const sequelize = new Sequelize({
+  dialect: 'sqlite',
+  storage: dbPath,
+  logging: process.env.NODE_ENV === 'development' ? console.log : false,
+  define: {
+    timestamps: true, // Enable timestamps for created_at and updated_at
+    underscored: true // Use snake_case for auto-generated fields
+  }
+});
+
+// Test the connection
+const connectToDatabase = async () => {
+  try {
+    await sequelize.authenticate();
+    console.log('SQLite connection has been established successfully.');
+
+    // Sync models with the database (creates tables if they don't exist)
+    // Note: Be careful with {force: true} as it will drop tables
+    await sequelize.sync();
+    console.log('Database synchronized successfully.');
+
+    return true;
+  } catch (error) {
+    console.error('Unable to connect to the SQLite database:', error);
+    return false;
+  }
+};
+
+// Initialize connection
+connectToDatabase();
+
+// Handle graceful shutdown
+process.on('SIGINT', async () => {
+  try {
+    await sequelize.close();
+    console.log('Database connection closed gracefully.');
+    process.exit(0);
+  } catch (err) {
+    console.error('Error during database disconnection:', err);
+    process.exit(1);
+  }
+});
+
+module.exports = sequelize;
